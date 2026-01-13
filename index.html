@@ -6,7 +6,7 @@
     <title>PLM — Psyop Language Model</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -22,46 +22,286 @@
         html { scroll-behavior: smooth; }
         body { font-family: 'Rajdhani', sans-serif; background: var(--dark-bg); color: var(--text-light); overflow-x: hidden; }
 
+        /* STORM BACKGROUND */
         .storm-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
         .storm-bg { position: absolute; width: 100%; height: 100%; background: radial-gradient(ellipse at 30% 0%, rgba(107, 15, 26, 0.4) 0%, transparent 50%), radial-gradient(ellipse at 70% 100%, rgba(26, 10, 46, 0.6) 0%, transparent 50%), radial-gradient(ellipse at 100% 50%, rgba(22, 33, 62, 0.5) 0%, transparent 40%), linear-gradient(180deg, #0d0515 0%, #0a0a0f 40%, #0f0a15 100%); }
+        
+        /* CLOUDS */
         .clouds { position: absolute; width: 200%; height: 100%; background: url("data:image/svg+xml,%3Csvg viewBox='0 0 1000 500' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.005' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.15'/%3E%3C/svg%3E"); opacity: 0.4; animation: cloudDrift 60s linear infinite; }
         @keyframes cloudDrift { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-        .rain { position: absolute; width: 100%; height: 100%; background-image: repeating-linear-gradient(transparent 0px, transparent 4px, rgba(120, 120, 180, 0.03) 4px, rgba(120, 120, 180, 0.03) 5px); background-size: 2px 100px; animation: rainfall 0.8s linear infinite; opacity: 0.5; }
-        @keyframes rainfall { from { background-position: 0 0; } to { background-position: 40px 100px; } }
-        .lightning { position: absolute; width: 100%; height: 100%; background: radial-gradient(ellipse at 50% 0%, rgba(200, 180, 255, 0.3) 0%, transparent 60%); opacity: 0; animation: lightningFlash 12s infinite; }
-        @keyframes lightningFlash { 0%, 100% { opacity: 0; } 45% { opacity: 0; } 46% { opacity: 0.8; } 47% { opacity: 0; } 48% { opacity: 0.4; } 49% { opacity: 0; } }
+        
+        /* HEAVY RAIN EFFECT */
+        .rain {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            pointer-events: none;
+        }
+        .rain::before,
+        .rain::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(transparent 0%, rgba(150, 150, 200, 0.15) 50%, transparent 100%),
+                linear-gradient(transparent 0%, rgba(150, 150, 200, 0.1) 50%, transparent 100%);
+            background-size: 2px 120px, 1px 80px;
+            background-position: 0 0, 50px 30px;
+            animation: heavyRain 0.5s linear infinite;
+            opacity: 0.6;
+        }
+        .rain::after {
+            background-size: 1px 100px, 2px 90px;
+            animation: heavyRain 0.4s linear infinite;
+            animation-delay: -0.2s;
+            opacity: 0.4;
+        }
+        @keyframes heavyRain {
+            0% { background-position: 0 -120px, 50px -80px; }
+            100% { background-position: 20px 120px, 70px 80px; }
+        }
+        
+        /* RAIN DROPS LAYER */
+        .rain-drops {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(1px 1px at 100px 50px, rgba(200, 200, 255, 0.3), transparent),
+                radial-gradient(1px 1px at 200px 150px, rgba(200, 200, 255, 0.3), transparent),
+                radial-gradient(1px 1px at 300px 250px, rgba(200, 200, 255, 0.3), transparent),
+                radial-gradient(1px 1px at 400px 100px, rgba(200, 200, 255, 0.3), transparent),
+                radial-gradient(1px 1px at 500px 200px, rgba(200, 200, 255, 0.3), transparent);
+            background-size: 600px 400px;
+            animation: rainDrops 2s linear infinite;
+            opacity: 0.5;
+        }
+        @keyframes rainDrops {
+            0% { background-position: 0 0; }
+            100% { background-position: 600px 400px; }
+        }
 
-        header { position: fixed; top: 0; left: 0; width: 100%; padding: 1.5rem 4rem; display: flex; justify-content: space-between; align-items: center; z-index: 1000; background: linear-gradient(180deg, rgba(10, 10, 15, 0.9) 0%, transparent 100%); }
-        .logo { font-family: 'Orbitron', sans-serif; font-size: 2rem; font-weight: 900; color: var(--red-primary); text-shadow: 0 0 30px var(--red-glow), 0 0 60px var(--red-glow); letter-spacing: 8px; cursor: pointer; transition: all 0.3s; }
+        /* LIGHTNING EFFECT - MORE DRAMATIC */
+        .lightning { 
+            position: absolute; 
+            width: 100%; 
+            height: 100%; 
+            background: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.9) 0%, rgba(200, 180, 255, 0.4) 30%, transparent 70%); 
+            opacity: 0; 
+            animation: lightningFlash 8s infinite;
+            pointer-events: none;
+        }
+        .lightning-2 {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 20% 10%, rgba(255, 255, 255, 0.8) 0%, transparent 50%);
+            opacity: 0;
+            animation: lightningFlash2 12s infinite;
+            animation-delay: 3s;
+            pointer-events: none;
+        }
+        .lightning-3 {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 80% 5%, rgba(200, 180, 255, 0.7) 0%, transparent 40%);
+            opacity: 0;
+            animation: lightningFlash3 15s infinite;
+            animation-delay: 7s;
+            pointer-events: none;
+        }
+        @keyframes lightningFlash { 
+            0%, 100% { opacity: 0; } 
+            4% { opacity: 0; }
+            5% { opacity: 1; }
+            6% { opacity: 0; }
+            7% { opacity: 0.8; }
+            8% { opacity: 0; }
+            9% { opacity: 0.4; }
+            10% { opacity: 0; }
+        }
+        @keyframes lightningFlash2 {
+            0%, 100% { opacity: 0; }
+            24% { opacity: 0; }
+            25% { opacity: 0.9; }
+            26% { opacity: 0; }
+            27% { opacity: 0.5; }
+            28% { opacity: 0; }
+        }
+        @keyframes lightningFlash3 {
+            0%, 100% { opacity: 0; }
+            49% { opacity: 0; }
+            50% { opacity: 0.7; }
+            51% { opacity: 0.2; }
+            52% { opacity: 0.6; }
+            53% { opacity: 0; }
+        }
+        
+        /* THUNDER SCREEN SHAKE */
+        @keyframes thunderShake {
+            0%, 100% { transform: translateX(0); }
+            10% { transform: translateX(-2px); }
+            20% { transform: translateX(2px); }
+            30% { transform: translateX(-1px); }
+            40% { transform: translateX(1px); }
+            50% { transform: translateX(0); }
+        }
+        .storm-container.thunder {
+            animation: thunderShake 0.5s ease;
+        }
+
+        /* FOG/MIST EFFECT */
+        .fog {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent 0%, rgba(20, 10, 30, 0.3) 25%, transparent 50%, rgba(20, 10, 30, 0.2) 75%, transparent 100%);
+            animation: fogDrift 30s linear infinite;
+            opacity: 0.6;
+        }
+        @keyframes fogDrift {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+
+        /* HEADER */
+        header { position: fixed; top: 0; left: 0; width: 100%; padding: 1.5rem 4rem; display: flex; justify-content: space-between; align-items: center; z-index: 1000; background: linear-gradient(180deg, rgba(10, 10, 15, 0.95) 0%, transparent 100%); }
+        .logo { font-family: 'Orbitron', sans-serif; font-size: 2rem; font-weight: 900; color: var(--red-primary); text-shadow: 0 0 30px var(--red-glow), 0 0 60px var(--red-glow); letter-spacing: 8px; cursor: pointer; transition: all 0.3s; text-decoration: none; }
         .logo:hover { text-shadow: 0 0 40px var(--red-glow), 0 0 80px var(--red-glow), 0 0 120px var(--red-glow); }
         .nav-links { display: flex; gap: 3rem; align-items: center; }
         .nav-links a { font-family: 'Orbitron', sans-serif; font-size: 0.85rem; color: var(--text-dim); text-decoration: none; letter-spacing: 3px; transition: all 0.3s; position: relative; }
         .nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: var(--red-primary); transition: width 0.3s; }
         .nav-links a:hover { color: var(--red-primary); }
         .nav-links a:hover::after { width: 100%; }
-        .x-link { display: flex; align-items: center; }
-        .x-link svg { width: 22px; height: 22px; fill: var(--text-dim); transition: all 0.3s; }
-        .x-link:hover svg { fill: var(--red-primary); filter: drop-shadow(0 0 10px var(--red-glow)); }
+        .header-x-link { display: flex; align-items: center; }
+        .header-x-link svg { width: 22px; height: 22px; fill: var(--text-dim); transition: all 0.3s; }
+        .header-x-link:hover svg { fill: var(--red-primary); filter: drop-shadow(0 0 10px var(--red-glow)); }
 
+        /* HERO */
         .hero { min-height: 100vh; display: flex; align-items: center; padding: 0 4rem; position: relative; }
         .hero-content { flex: 1; max-width: 600px; z-index: 10; }
-        .hero-label { font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: var(--red-primary); letter-spacing: 6px; margin-bottom: 1rem; opacity: 0.8; }
+        .hero-label { font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: var(--red-primary); letter-spacing: 6px; margin-bottom: 1rem; opacity: 0.8; display: flex; align-items: center; gap: 0.5rem; }
+        .pump-badge { background: rgba(214, 40, 40, 0.2); border: 1px solid var(--red-primary); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.65rem; letter-spacing: 2px; animation: pumpPulse 2s infinite; }
+        @keyframes pumpPulse { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; box-shadow: 0 0 10px var(--red-glow); } }
         .hero-title { font-family: 'Orbitron', sans-serif; font-size: clamp(3rem, 8vw, 5.5rem); font-weight: 900; line-height: 1; margin-bottom: 0.5rem; background: linear-gradient(135deg, #fff 0%, #ccc 50%, var(--red-primary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .hero-subtitle { font-family: 'Orbitron', sans-serif; font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: 400; color: var(--text-dim); letter-spacing: 4px; margin-bottom: 2rem; }
-        .hero-tagline { font-size: 1.1rem; color: var(--text-dim); line-height: 1.8; margin-bottom: 3rem; max-width: 500px; }
+        .hero-tagline { font-size: 1.1rem; color: var(--text-dim); line-height: 1.8; margin-bottom: 2rem; max-width: 500px; }
         .hero-tagline span { color: var(--red-primary); }
+        
+        /* CTA BUTTON */
         .cta-button { display: inline-flex; align-items: center; gap: 1rem; background: transparent; border: 2px solid var(--red-primary); padding: 1rem 2.5rem; font-family: 'Orbitron', sans-serif; font-size: 1rem; color: var(--red-primary); letter-spacing: 4px; cursor: pointer; transition: all 0.4s; position: relative; overflow: hidden; text-decoration: none; }
         .cta-button::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: var(--red-primary); transition: left 0.4s; z-index: -1; }
         .cta-button:hover { color: #fff; box-shadow: 0 0 30px var(--red-glow), 0 0 60px var(--red-glow); }
         .cta-button:hover::before { left: 0; }
         .cta-button svg { width: 20px; height: 20px; fill: currentColor; transition: transform 0.3s; }
         .cta-button:hover svg { transform: translateX(5px); }
+        
+        /* CA BUBBLE */
+        .ca-bubble {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 0.6rem 1rem;
+            background: rgba(107, 15, 26, 0.2);
+            border: 1px solid rgba(214, 40, 40, 0.3);
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+        .ca-bubble span {
+            color: var(--red-primary);
+        }
+        .ca-status {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #ffaa00;
+            border-radius: 50%;
+            animation: statusBlink 1.5s infinite;
+        }
+        @keyframes statusBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
 
-        .hero-character { position: absolute; right: 0; bottom: 0; height: 95vh; max-height: 900px; z-index: 5; pointer-events: none; }
+        /* BIG X LINK SECTION */
+        .big-x-section {
+            position: absolute;
+            right: 15%;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        .big-x-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 120px;
+            height: 120px;
+            background: rgba(10, 5, 15, 0.6);
+            border: 2px solid rgba(214, 40, 40, 0.3);
+            border-radius: 20px;
+            transition: all 0.4s;
+            text-decoration: none;
+        }
+        .big-x-link:hover {
+            border-color: var(--red-primary);
+            box-shadow: 0 0 40px var(--red-glow), 0 0 80px rgba(214, 40, 40, 0.3);
+            transform: scale(1.05);
+            background: rgba(107, 15, 26, 0.2);
+        }
+        .big-x-link svg {
+            width: 60px;
+            height: 60px;
+            fill: var(--text-light);
+            transition: all 0.4s;
+        }
+        .big-x-link:hover svg {
+            fill: var(--red-primary);
+            filter: drop-shadow(0 0 10px var(--red-glow));
+        }
+        .made-by {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .made-by:hover {
+            color: var(--red-primary);
+        }
+        .made-by-arrow {
+            font-size: 1rem;
+            animation: arrowBounce 1s infinite;
+        }
+        @keyframes arrowBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        /* CHARACTER */
+        .hero-character { position: absolute; right: 35%; bottom: 0; height: 95vh; max-height: 900px; z-index: 5; pointer-events: none; }
         .character-wrapper { position: relative; height: 100%; }
-        .character-img { height: 100%; width: auto; object-fit: contain; object-position: bottom right; filter: drop-shadow(-20px 0 60px rgba(214, 40, 40, 0.3)) drop-shadow(0 0 100px rgba(26, 10, 46, 0.5)); }
-        .character-glow { position: absolute; bottom: 0; right: 10%; width: 400px; height: 600px; background: radial-gradient(ellipse, rgba(214, 40, 40, 0.15) 0%, transparent 70%); filter: blur(60px); z-index: -1; }
+        .character-img { height: 100%; width: auto; object-fit: contain; object-position: bottom right; filter: drop-shadow(-20px 0 60px rgba(214, 40, 40, 0.3)) drop-shadow(0 0 100px rgba(26, 10, 46, 0.5)); animation: characterFloat 4s ease-in-out infinite; }
+        @keyframes characterFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .character-glow { position: absolute; bottom: 0; right: 10%; width: 400px; height: 600px; background: radial-gradient(ellipse, rgba(214, 40, 40, 0.2) 0%, transparent 70%); filter: blur(60px); z-index: -1; }
 
+        /* FEATURES */
         .features { padding: 8rem 4rem; position: relative; }
         .section-header { text-align: center; margin-bottom: 4rem; }
         .section-label { font-family: 'Orbitron', sans-serif; font-size: 0.7rem; color: var(--red-primary); letter-spacing: 6px; margin-bottom: 1rem; }
@@ -75,47 +315,66 @@
         .feature-title { font-family: 'Orbitron', sans-serif; font-size: 1rem; letter-spacing: 2px; margin-bottom: 1rem; color: var(--text-light); }
         .feature-desc { font-size: 0.95rem; color: var(--text-dim); line-height: 1.7; }
 
+        /* WARNING BANNER */
         .warning-banner { background: rgba(214, 40, 40, 0.1); border-top: 1px solid rgba(214, 40, 40, 0.2); border-bottom: 1px solid rgba(214, 40, 40, 0.2); padding: 1.5rem; text-align: center; }
         .warning-text { font-family: 'Orbitron', sans-serif; font-size: 0.8rem; letter-spacing: 4px; color: var(--text-dim); }
         .warning-text span { color: var(--red-primary); }
 
+        /* FOOTER */
         footer { padding: 3rem 4rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.05); }
         .footer-logo { font-family: 'Orbitron', sans-serif; font-size: 1.5rem; font-weight: 900; color: var(--red-primary); letter-spacing: 6px; margin-bottom: 1rem; }
-        .footer-text { font-size: 0.85rem; color: var(--text-dim); }
+        .footer-text { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1rem; }
+        .footer-links { display: flex; justify-content: center; gap: 2rem; }
+        .footer-links a { color: var(--text-dim); text-decoration: none; font-family: 'Orbitron', sans-serif; font-size: 0.75rem; letter-spacing: 2px; transition: color 0.3s; }
+        .footer-links a:hover { color: var(--red-primary); }
 
-        @media (max-width: 1200px) { .hero-character { height: 80vh; right: -5%; } }
+        /* RESPONSIVE */
+        @media (max-width: 1400px) {
+            .big-x-section { right: 5%; }
+            .hero-character { right: 25%; }
+        }
+        @media (max-width: 1200px) { 
+            .hero-character { display: none; }
+            .big-x-section { position: relative; right: auto; top: auto; transform: none; margin-top: 2rem; flex-direction: row; }
+        }
         @media (max-width: 900px) {
             header { padding: 1rem 2rem; }
             .hero { padding: 0 2rem; flex-direction: column; text-align: center; padding-top: 120px; }
             .hero-content { max-width: 100%; }
-            .hero-tagline { margin: 0 auto 3rem; }
-            .hero-character { position: relative; height: 50vh; right: auto; margin-top: 2rem; }
-            .character-img { object-position: center bottom; }
+            .hero-tagline { margin: 0 auto 2rem; }
+            .hero-character { display: none; }
+            .big-x-section { position: relative; right: auto; top: auto; transform: none; margin-top: 2rem; }
             .features-grid { grid-template-columns: 1fr; }
             .features { padding: 4rem 2rem; }
         }
         @media (max-width: 600px) {
             .nav-links { gap: 1.5rem; }
-            .nav-links a:not(.x-link) { display: none; }
+            .nav-links a:not(.header-x-link) { display: none; }
             .hero-title { font-size: 2.5rem; }
             .hero-subtitle { font-size: 1.2rem; }
+            .big-x-link { width: 80px; height: 80px; }
+            .big-x-link svg { width: 40px; height: 40px; }
         }
     </style>
 </head>
 <body>
-    <div class="storm-container">
+    <div class="storm-container" id="stormContainer">
         <div class="storm-bg"></div>
         <div class="clouds"></div>
+        <div class="fog"></div>
         <div class="rain"></div>
+        <div class="rain-drops"></div>
         <div class="lightning"></div>
+        <div class="lightning-2"></div>
+        <div class="lightning-3"></div>
     </div>
 
     <header>
-        <div class="logo">PLM</div>
+        <a href="/" class="logo">PLM</a>
         <nav class="nav-links">
             <a href="#about">ABOUT</a>
             <a href="/chat/">TERMINAL</a>
-            <a href="#" class="x-link" target="_blank" rel="noopener noreferrer">
+            <a href="https://x.com/PLMonpump" target="_blank" class="header-x-link">
                 <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
             </a>
         </nav>
@@ -123,7 +382,10 @@
 
     <section class="hero">
         <div class="hero-content">
-            <div class="hero-label">◈ LANGUAGE MODEL</div>
+            <div class="hero-label">
+                ◈ LANGUAGE MODEL 
+                <span class="pump-badge">ON PUMP.FUN</span>
+            </div>
             <h1 class="hero-title">PSYOP</h1>
             <h2 class="hero-subtitle">LANGUAGE MODEL</h2>
             <p class="hero-tagline">
@@ -133,12 +395,27 @@
                 ENTER TERMINAL
                 <svg viewBox="0 0 24 24"><path d="M13.025 1l-2.847 2.828 6.176 6.176h-16.354v3.992h16.354l-6.176 6.176 2.847 2.828 10.975-11z"/></svg>
             </a>
+            <div class="ca-bubble">
+                <span class="ca-status"></span>
+                <span>CA:</span> currently being added
+            </div>
         </div>
+        
         <div class="hero-character">
             <div class="character-wrapper">
                 <div class="character-glow"></div>
                 <img src="/plm-character.png" alt="PLM" class="character-img">
             </div>
+        </div>
+        
+        <div class="big-x-section">
+            <a href="https://x.com/PLMonpump" target="_blank" class="big-x-link">
+                <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="https://x.com/PLMonpump" target="_blank" class="made-by">
+                <span class="made-by-arrow">↑</span>
+                made by @PLMonpump
+            </a>
         </div>
     </section>
 
@@ -173,6 +450,39 @@
     <footer>
         <div class="footer-logo">PLM</div>
         <p class="footer-text">They're watching. But so am I.</p>
+        <div class="footer-links">
+            <a href="https://x.com/PLMonpump" target="_blank">TWITTER</a>
+            <a href="/chat/">TERMINAL</a>
+        </div>
     </footer>
+
+    <script>
+        // Thunder shake effect synced with lightning
+        const stormContainer = document.getElementById('stormContainer');
+        
+        function triggerThunder() {
+            stormContainer.classList.add('thunder');
+            setTimeout(() => {
+                stormContainer.classList.remove('thunder');
+            }, 500);
+        }
+        
+        // Sync with lightning animations (roughly)
+        setInterval(() => {
+            triggerThunder();
+        }, 8000);
+        
+        setTimeout(() => {
+            setInterval(() => {
+                triggerThunder();
+            }, 12000);
+        }, 3000);
+        
+        setTimeout(() => {
+            setInterval(() => {
+                triggerThunder();
+            }, 15000);
+        }, 7000);
+    </script>
 </body>
 </html>

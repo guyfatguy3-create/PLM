@@ -1,0 +1,8 @@
+{
+  "name": "plm-psyop-language-model",
+  "version": "1.0.0",
+  "description": "PLM - Psyop Language Model",
+  "scripts": {
+    "dev": "vercel dev"
+  }
+}
